@@ -12,7 +12,7 @@ function install_node() {
 
 # sudo rm -rf /usr/local/go
 
-# curl -L https://go.dev/dl/go1.20.14.linux-amd64.tar.gz | sudo tar -xzf - -C /usr/local
+# curl -L https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | sudo tar -xzf - -C /usr/local
 
 # echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bashrc
 
@@ -22,7 +22,7 @@ function install_node() {
 
 # 增加swap空间
 sudo mkdir /swap
-sudo fallocate -l 12G /swap/swapfile
+sudo fallocate -l 16G /swap/swapfile
 sudo chmod 600 /swap/swapfile
 sudo mkswap /swap/swapfile
 sudo swapon /swap/swapfile
@@ -49,7 +49,7 @@ git clone https://github.com/quilibriumnetwork/ceremonyclient
 # 进入 ceremonyclient/node 目录
 cd #HOME
 cd ceremonyclient/node
-git switch release
+git switch release-cdn
 
 # 写入服务
 sudo tee /lib/systemd/system/ceremonyclient.service > /dev/null << EOF
@@ -62,7 +62,7 @@ Restart=always
 RestartSec=5S
 WorkingDirectory=/root/ceremonyclient/node
 Environment=GOEXPERIMENT=arenas
-ExecStart=/root/ceremonyclient/node/node-1.4.18-linux-amd64
+ExecStart=/root/ceremonyclient/node/node-1.4.19-linux-amd64
 
 [Install]
 WantedBy=multi-user.target
@@ -96,6 +96,7 @@ function backup_set() {
 }
 
 function upload () {
+    service ceremonyclient stop
     sudo rm -rf /usr/local/go
     curl -L https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | sudo tar -xzf - -C /usr/local
     cd ~/ceremonyclient
