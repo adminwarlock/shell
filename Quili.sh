@@ -10,6 +10,11 @@ fi
 # 节点安装功能
 function install_node() {
 
+sudo ufw allow 22
+sudo ufw allow 8336
+sudo ufw allow 443
+sudo ufw status
+
 # sudo rm -rf /usr/local/go
 
 # curl -L https://go.dev/dl/go1.22.4.linux-amd64.tar.gz | sudo tar -xzf - -C /usr/local
@@ -142,10 +147,12 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级"
+    echo "5. 升级1.4.19"
     echo "6. 设置grpc"
     echo "7. 查看余额"
-    echo "=========================备份功能================================"
+    echo "=========================脚本运行================================"
+    # echo "8. 安装脚本"
+    # echo "9. 查看日志"
     read -p "请输入选项（1-4）: " OPTION
 
     case $OPTION in
