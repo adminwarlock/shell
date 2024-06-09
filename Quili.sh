@@ -106,6 +106,11 @@ function upload () {
     cd ~/ceremonyclient/node
     sed -i 's/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.18-linux-amd64/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.19-linux-amd64/g' /lib/systemd/system/ceremonyclient.service
     systemctl daemon-reload
+
+    sed -i 's/listenMultiaddr: \/ip4\/0.0.0.0\/udp\/8336\/quic/listenMultiaddr: \/ip4\/0.0.0.0\/tcp\/8336/g' ~/ceremonyclient/node/.config/config.yml
+    sed -i 's/listenGrpcMultiaddr: ""/listenGrpcMultiaddr: \/ip4\/127.0.0.1\/tcp\/8337/g' ~/ceremonyclient/node/.config/config.yml
+    sed -i 's/listenRESTMultiaddr: ""/listenRESTMultiaddr: \/ip4\/127.0.0.1\/tcp\/8338/g' ~/ceremonyclient/node/.config/config.yml
+
     cd ~/ceremonyclient/client
     rm ~/go/bin/qclient
     GOEXPERIMENT=arenas go build -o ~/go/bin/qclient main.go
@@ -115,6 +120,18 @@ function upload () {
     echo ====================================== 更新完成 =========================================
 }
 
+function set_grpc () {
+    cd ~
+    sed -i 's/listenMultiaddr: \/ip4\/0.0.0.0\/udp\/8336\/quic/listenMultiaddr: \/ip4\/0.0.0.0\/tcp\/8336/g' ~/ceremonyclient/node/.config/config.yml
+    sed -i 's/listenGrpcMultiaddr: ""/listenGrpcMultiaddr: \/ip4\/127.0.0.1\/tcp\/8337/g' ~/ceremonyclient/node/.config/config.yml
+    sed -i 's/listenRESTMultiaddr: ""/listenRESTMultiaddr: \/ip4\/127.0.0.1\/tcp\/8338/g' ~/ceremonyclient/node/.config/config.yml
+    go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+}
+
+function get_balances () {
+    cd ~/ceremonyclient/node
+    ./node-1.4.19-linux-amd64 --node-info
+}
 # 主菜单
 function main_menu() {
     clear
@@ -126,6 +143,8 @@ function main_menu() {
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
     echo "5. 升级"
+    echo "6. 设置grpc"
+    echo "7. 查看余额"
     echo "=========================备份功能================================"
     read -p "请输入选项（1-4）: " OPTION
 
@@ -135,6 +154,8 @@ function main_menu() {
     3) check_ceremonyclient_service_status ;; 
     4) backup_set ;;  
     5) upload ;; 
+    6) set_grpc ;;  
+    7) get_balances ;; 
     *) echo "无效选项。" ;;
     esac
 }
