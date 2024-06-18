@@ -221,7 +221,7 @@ function set_grpc () {
 
 function get_balances () {
     cd ~/ceremonyclient/node
-    ./node-1.4.19-linux-amd64 --node-info
+    ./node-1.4.19.1-linux-amd64 --node-info
 }
 # 主菜单
 function main_menu() {
