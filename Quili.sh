@@ -93,9 +93,8 @@ function check_ceremonyclient_service_status() {
 }
 
 function backup_set() {
-    mkdir -p ~/backup
-    cat ~/ceremonyclient/node/.config/config.yml > ~/backup/config.txt
-    cat ~/ceremonyclient/node/.config/keys.yml > ~/backup/keys.txt
+    cd ~
+    cp -r ~/ceremonyclient/node/.config ~/backup
 
     echo "=======================备份完成，请执行cd ~/backup 查看备份文件========================================="
 }
@@ -125,6 +124,93 @@ function upload () {
     echo ====================================== 更新完成 =========================================
 }
 
+function upload2 () {
+# stop the service
+echo "1. stopping the ceremonyclient service first..."
+service ceremonyclient stop
+echo "... ceremonyclient service stopped"
+ 
+# make a backup of the whole .config folder on your root folder
+echo "2. making a backup of the entire .config folder on ~ folder..."
+cd ~
+cp -r ~/ceremonyclient/node/.config ~/config
+config_copy_status=$?
+config_copy_message="Successful"
+if [ $config_copy_status != 0 ]; then
+    config_copy_message="Unsuccessful"
+fi
+echo "... Copy Code: $config_copy_status - $config_copy_message"
+echo "... backup of .config directory done"
+ 
+# delete and remake the ceremonyclient directory
+echo "3. deleting and recreating the ceremonyclient directory, in order to start afresh..."
+if [ $config_copy_status != 0 ]; then
+    echo "... because backup of .config failed, only renaming ceremonyclient to ceremonyclient_old"
+    mv ceremonyclient ceremonyclient_old
+else
+    echo "... because backup of .config is successful, proceeding with deleting ceremonyclient folder"
+    rm -rf ceremonyclient/
+fi
+mkdir ceremonyclient && cd ceremonyclient
+echo "... deleted and recreated"
+ 
+# setting release OS and arch variables
+echo "4. setting release OS and arch variables..."
+release_os="linux"
+release_arch="amd64"
+echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\""
+ 
+# create node directory and download all required node files (binaries, dgst, and sig files)
+echo "5. creating node folder, and downloading all required node-related files (binaries, .dgst and *.sig files)..."
+mkdir node && cd node
+echo "... node folder recreated"
+files=$(curl https://releases.quilibrium.com/release | grep $release_os-$release_arch)
+for file in $files; do
+    version=$(echo "$file" | cut -d '-' -f 2)
+    if ! test -f "./$file"; then
+        curl "https://releases.quilibrium.com/$file" > "$file"
+        echo "... downloaded $file"
+    fi
+done
+chmod +x ./node-$version-$release_os-$release_arch
+cd ..
+echo "... download of required node files done"
+ 
+# creating client directory for qclient
+echo "6. creating client folder, and downloading qclient binary..."
+mkdir client && cd client
+echo "... client folder recreated"
+files=$(curl https://releases.quilibrium.com/qclient-release | grep $release_os-$release_arch)
+for file in $files; do
+    if ! test -f "./$file"; then
+        curl "https://releases.quilibrium.com/$file" > "$file"
+        echo "... downloaded $file"
+    fi
+done
+mv qclient-$version-$release_os-$release_arch qclient
+chmod +x ./qclient
+echo "... \"qclient-$version-$release_os-$release_arch\" renamed to \"qclient\""
+cd ..
+echo "... download of required qclient files done"
+ 
+# copying your backed up .config directory inside node
+echo "7. copying your backed up .config directory inside node..."
+cp -r ~/config ~/ceremonyclient/node/.config
+rm -rf ~/config
+ 
+# modifying the service configuration file
+echo "8. modifying the service configuration file..."
+sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.19-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+systemctl daemon-reload
+echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.19-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
+echo "... service configuration file updated"
+ 
+# start the service again
+echo "9. starting the service again..."
+service ceremonyclient start
+echo "... service started"
+}
+
 function set_grpc () {
     cd ~
     sed -i 's/listenMultiaddr: \/ip4\/0.0.0.0\/udp\/8336\/quic/listenMultiaddr: \/ip4\/0.0.0.0\/tcp\/8336/g' ~/ceremonyclient/node/.config/config.yml
@@ -147,20 +233,20 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级1.4.19"
+    echo "5. 升级1.4.19-p2"
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
     # echo "8. 安装脚本"
     # echo "9. 查看日志"
-    read -p "请输入选项（1-4）: " OPTION
+    read -p "请输入选项（1-7）: " OPTION
 
     case $OPTION in
     1) install_node ;;
     2) view_logs ;;  
     3) check_ceremonyclient_service_status ;; 
     4) backup_set ;;  
-    5) upload ;; 
+    5) upload2 ;; 
     6) set_grpc ;;  
     7) get_balances ;; 
     *) echo "无效选项。" ;;
