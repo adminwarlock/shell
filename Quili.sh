@@ -158,6 +158,7 @@ echo "... deleted and recreated"
 echo "4. setting release OS and arch variables..."
 release_os="linux"
 release_arch="amd64"
+current_version="1.4.19"
 echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
@@ -182,14 +183,15 @@ mkdir client && cd client
 echo "... client folder recreated"
 files=$(curl https://releases.quilibrium.com/qclient-release | grep $release_os-$release_arch)
 for file in $files; do
+    qclient_version=$(echo "$file" | cut -d '-' -f 2)
     if ! test -f "./$file"; then
         curl "https://releases.quilibrium.com/$file" > "$file"
         echo "... downloaded $file"
     fi
 done
-mv qclient-$version-$release_os-$release_arch qclient
+mv qclient-$qclient_version-$release_os-$release_arch qclient
 chmod +x ./qclient
-echo "... \"qclient-$version-$release_os-$release_arch\" renamed to \"qclient\""
+echo "... \"qclient-$qclient_version-$release_os-$release_arch\" renamed to \"qclient\""
 cd ..
 echo "... download of required qclient files done"
  
@@ -197,12 +199,58 @@ echo "... download of required qclient files done"
 echo "7. copying your backed up .config directory inside node..."
 cp -r ~/config ~/ceremonyclient/node/.config
 rm -rf ~/config
+echo "... .config directory copied back in node folder"
  
 # modifying the service configuration file
 echo "8. modifying the service configuration file..."
-sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.19-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-$current_version-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
 systemctl daemon-reload
-echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.19-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
+echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-$current_version-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
+echo "... service configuration file updated"
+ 
+# start the service again
+echo "9. starting the service again..."
+service ceremonyclient start
+echo "... service started"
+}
+
+function upload20 () {
+# stop the service
+echo "1. stopping the ceremonyclient service first..."
+service ceremonyclient stop
+echo "... ceremonyclient service stopped"
+ 
+# setting release OS and arch variables
+echo "2. setting release OS and arch variables..."
+release_os="linux"
+release_arch="amd64"
+echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\""
+ 
+# deleting node (binaries, dgst and sig) files and re-download the same (but latest) required node files in the node folder
+echo "3. deleting node (binaries, dgst and sig) files and re-download the same (but latest) required node files in the node folder..."
+cd ~/ceremonyclient/node
+rm rm -rf node-*-$release_os-$release_arch*
+echo "... deleted node (binaries, dgst and sig) files from node folder"
+files=$(curl https://releases.quilibrium.com/release | grep $release_os-$release_arch)
+for file in $files; do
+    version=$(echo "$file" | cut -d '-' -f 2)
+    if ! test -f "./$file"; then
+        curl "https://releases.quilibrium.com/$file" > "$file"
+        echo "... downloaded $file"
+    fi
+done
+chmod +x ./node-$version-$release_os-$release_arch
+cd ..
+echo "... download of required node files done"
+ 
+# not doing anything with qclient because its latest version is still 1.4.19-p1
+echo "4. not doing anything with qclient because its latest version is still 1.4.19-p1..."
+ 
+# modifying the service configuration file
+echo "8. modifying the service configuration file..."
+sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.19.1-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+systemctl daemon-reload
+echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.19.1-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
 echo "... service configuration file updated"
  
 # start the service again
@@ -233,11 +281,11 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级1.4.19-p2"
+    echo "5. 升级1.4.20"
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
-    # echo "8. 安装脚本"
+    echo "8. older Upgrading 1.4.20"
     # echo "9. 查看日志"
     read -p "请输入选项（1-7）: " OPTION
 
@@ -246,9 +294,10 @@ function main_menu() {
     2) view_logs ;;  
     3) check_ceremonyclient_service_status ;; 
     4) backup_set ;;  
-    5) upload2 ;; 
+    5) upload20 ;; 
     6) set_grpc ;;  
     7) get_balances ;; 
+    8) upload2 ;; 
     *) echo "无效选项。" ;;
     esac
 }
