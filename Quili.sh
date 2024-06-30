@@ -155,11 +155,11 @@ mkdir ceremonyclient && cd ceremonyclient
 echo "... deleted and recreated"
  
 # setting release OS and arch variables
-echo "4. setting release OS and arch variables..."
+echo "4. setting release OS and arch and current version variables..."
 release_os="linux"
 release_arch="amd64"
 current_version="1.4.19"
-echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\""
+echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\" and \$current_version set to \"$current_version\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
 echo "5. creating node folder, and downloading all required node-related files (binaries, .dgst and *.sig files)..."
@@ -210,6 +210,7 @@ echo "... service configuration file updated"
  
 # start the service again
 echo "9. starting the service again..."
+cd ~
 service ceremonyclient start
 echo "... service started"
 }
@@ -247,14 +248,15 @@ echo "... download of required node files done"
 echo "4. not doing anything with qclient because its latest version is still 1.4.19-p1..."
  
 # modifying the service configuration file
-echo "8. modifying the service configuration file..."
-sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.19.1-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+echo "5. modifying the service configuration file..."
+sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.20-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
 systemctl daemon-reload
-echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.19.1-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
+echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.20-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
 echo "... service configuration file updated"
  
 # start the service again
-echo "9. starting the service again..."
+echo "6. starting the service again..."
+cd ~
 service ceremonyclient start
 echo "... service started"
 }
@@ -269,7 +271,7 @@ function set_grpc () {
 
 function get_balances () {
     cd ~/ceremonyclient/node
-    ./node-1.4.20-linux-amd64 --node-info
+    ./node-1.4.20.1-linux-amd64 --node-info
 }
 # 主菜单
 function main_menu() {
@@ -281,11 +283,11 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级1.4.20"
+    echo "5. 升级1.4.20-p1"
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
-    echo "8. older Upgrading 1.4.20"
+    echo "8. older Upgrading 1.4.20-p1"
     # echo "9. 查看日志"
     read -p "请输入选项（1-7）: " OPTION
 
