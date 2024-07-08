@@ -249,9 +249,9 @@ echo "4. not doing anything with qclient because its latest version is still 1.4
  
 # modifying the service configuration file
 echo "5. modifying the service configuration file..."
-sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.20-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-1.4.20.1-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
 systemctl daemon-reload
-echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.20-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
+echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-1.4.20.1-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$version-$release_os-$release_arch\""
 echo "... service configuration file updated"
  
 # start the service again
@@ -271,7 +271,7 @@ function set_grpc () {
 
 function get_balances () {
     cd ~/ceremonyclient/node
-    ./node-1.4.20.1-linux-amd64 --node-info
+    ./node-1.4.21-linux-amd64 --node-info
 }
 # 主菜单
 function main_menu() {
@@ -283,11 +283,11 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级1.4.20-p1"
+    echo "5. 升级1.4.21"
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
-    echo "8. older Upgrading 1.4.20-p1"
+    echo "8. older Upgrading 1.4.21"
     # echo "9. 查看日志"
     read -p "请输入选项（1-7）: " OPTION
 
