@@ -158,7 +158,7 @@ echo "... deleted and recreated"
 echo "4. setting release OS and arch and current version variables..."
 release_os="linux"
 release_arch="amd64"
-current_version="1.4.19"
+current_version="2.0.2.3"
 echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\" and \$current_version set to \"$current_version\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
@@ -223,7 +223,7 @@ function set_grpc () {
 
 function get_balances () {
     cd ~/ceremonyclient/node
-    ./node-1.4.21-linux-amd64 --node-info
+    ./node-2.0.2.3-linux-amd64 --node-info
 }
 # 主菜单
 function main_menu() {
