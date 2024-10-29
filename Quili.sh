@@ -158,7 +158,7 @@ echo "... deleted and recreated"
 echo "4. setting release OS and arch and current version variables..."
 release_os="linux"
 release_arch="amd64"
-current_version="2.0.2.3"
+current_version="1.4.21"
 echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\" and \$current_version set to \"$current_version\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
