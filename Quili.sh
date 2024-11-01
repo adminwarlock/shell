@@ -228,6 +228,10 @@ function get_balances () {
 }
 
 function update () {
+    release_os="linux"
+    release_arch="amd64"
+    current_version="2.0.2.3"
+    file_version="2.0.2.4"
     # stop the service
     echo "1. stopping the ceremonyclient service first..."
     service ceremonyclient stop
