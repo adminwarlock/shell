@@ -159,6 +159,7 @@ echo "4. setting release OS and arch and current version variables..."
 release_os="linux"
 release_arch="amd64"
 current_version="2.0.2.3"
+file_version="2.0.2.4"
 echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\" and \$current_version set to \"$current_version\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
@@ -225,6 +226,35 @@ function get_balances () {
     cd ~/ceremonyclient/node
     ./node-2.0.2.3-linux-amd64 --node-info
 }
+
+function update () {
+    # stop the service
+    echo "1. stopping the ceremonyclient service first..."
+    # service ceremonyclient stop
+    echo "... ceremonyclient service stopped"
+    cd ~/ceremonyclient/node
+    # curl "https://releases.quilibrium.com/node-$file_version-linux-amd64"
+    curl -o "node-$file_version-linux-amd64" "https://releases.quilibrium.com/node-$file_version-linux-amd64"
+    chmod +x ./node-$file_version-linux-amd64
+    echo "... downloaded node-$file_version-linux-amd64"
+    cd ~/ceremonyclient/client
+    curl -o "qclient-$file_version-linux-amd64" "https://releases.quilibrium.com/qclient-$file_version-linux-amd64"
+    chmod +x ./qclient-$file_version-linux-amd64
+    echo "... downloaded qclient-$file_version-linux-amd64"
+    cd ~
+    # modifying the service configuration file
+    echo "2. modifying the service configuration file..."
+    sed -i "s/ExecStart=\/root\/ceremonyclient\/node\/node-$current_version-$release_os-$release_arch/ExecStart=\/root\/ceremonyclient\/node\/node-$file_version-$release_os-$release_arch/g" /lib/systemd/system/ceremonyclient.service
+    systemctl daemon-reload
+    echo "... replaced \"ExecStart=/root/ceremonyclient/node/node-$current_version-$release_os-$release_arch\" with \"ExecStart=/root/ceremonyclient/node/node-$file_version-$release_os-$release_arch\""
+    echo "... service configuration file updated"
+    
+    # start the service again
+    echo "3. starting the service again..."
+    cd ~
+    service ceremonyclient start
+    echo "... service started"
+}
 # 主菜单
 function main_menu() {
     clear
@@ -239,7 +269,7 @@ function main_menu() {
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
-    # echo "9. 查看日志"
+    echo "8. 下载新版本"
     read -p "请输入选项（1-7）: " OPTION
 
     case $OPTION in
@@ -249,7 +279,8 @@ function main_menu() {
     4) backup_set ;;  
     5) upload2 ;; 
     6) set_grpc ;;  
-    7) get_balances ;; 
+    7) get_balances ;;
+    8) update ;; 
     *) echo "无效选项。" ;;
     esac
 }
