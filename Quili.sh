@@ -224,7 +224,7 @@ function set_grpc () {
 
 function get_balances () {
     cd ~/ceremonyclient/node
-    ./node-2.0.2.3-linux-amd64 --node-info
+    ./node-2.0.2.4-linux-amd64 --node-info
 }
 
 function update () {
