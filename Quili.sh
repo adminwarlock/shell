@@ -238,12 +238,32 @@ function update () {
     echo "... ceremonyclient service stopped"
     cd ~/ceremonyclient/node
     # curl "https://releases.quilibrium.com/node-$file_version-linux-amd64"
-    curl -o "node-$file_version-linux-amd64" "https://releases.quilibrium.com/node-$file_version-linux-amd64"
-    chmod +x ./node-$file_version-linux-amd64
+    # curl -o "node-$file_version-linux-amd64" "https://releases.quilibrium.com/node-$file_version-linux-amd64"
+    # chmod +x ./node-$file_version-linux-amd64
+    echo "... node folder recreated"
+    files=$(curl https://releases.quilibrium.com/release | grep $release_os-$release_arch)
+    for file in $files; do
+        version=$(echo "$file" | cut -d '-' -f 2)
+        if ! test -f "./$file"; then
+            curl "https://releases.quilibrium.com/$file" > "$file"
+            echo "... downloaded $file"
+        fi
+    done
+    chmod +x ./node-$version-$release_os-$release_arch
     echo "... downloaded node-$file_version-linux-amd64"
     cd ~/ceremonyclient/client
-    curl -o "qclient-$file_version-linux-amd64" "https://releases.quilibrium.com/qclient-$file_version-linux-amd64"
-    chmod +x ./qclient-$file_version-linux-amd64
+    # curl -o "qclient-$file_version-linux-amd64" "https://releases.quilibrium.com/qclient-$file_version-linux-amd64"
+    # chmod +x ./qclient-$file_version-linux-amd64
+    echo "... client folder recreated"
+    files=$(curl https://releases.quilibrium.com/qclient-release | grep $release_os-$release_arch)
+    for file in $files; do
+        clientversion=$(echo "$file" | cut -d '-' -f 2)
+        if ! test -f "./$file"; then
+            curl "https://releases.quilibrium.com/$file" > "$file"
+            echo "... downloaded $file"
+        fi
+    done
+    chmod +x ./qclient-$clientversion-$release_os-$release_arch
     echo "... downloaded qclient-$file_version-linux-amd64"
     cd ~
     # modifying the service configuration file
