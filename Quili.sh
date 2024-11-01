@@ -230,7 +230,7 @@ function get_balances () {
 function update () {
     # stop the service
     echo "1. stopping the ceremonyclient service first..."
-    # service ceremonyclient stop
+    service ceremonyclient stop
     echo "... ceremonyclient service stopped"
     cd ~/ceremonyclient/node
     # curl "https://releases.quilibrium.com/node-$file_version-linux-amd64"
