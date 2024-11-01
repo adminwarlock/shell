@@ -158,7 +158,7 @@ echo "... deleted and recreated"
 echo "4. setting release OS and arch and current version variables..."
 release_os="linux"
 release_arch="amd64"
-current_version="1.4.21"
+current_version="2.0.2.3"
 echo "... \$release_os set to \"$release_os\" and \$release_arch set to \"$release_arch\" and \$current_version set to \"$current_version\""
  
 # create node directory and download all required node files (binaries, dgst, and sig files)
@@ -235,7 +235,7 @@ function main_menu() {
     echo "3. 查看服务状态"
     echo "=======================单独使用功能============================="
     echo "4. 备份文件"
-    echo "5. 升级2.0.2"
+    echo "5. 升级2.0.2.3"
     echo "6. 设置grpc"
     echo "7. 查看余额"
     echo "=========================脚本运行================================"
